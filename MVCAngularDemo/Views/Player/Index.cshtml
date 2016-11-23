@@ -16,7 +16,9 @@
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/i18n/angular-locale_tr-tr.js"></script>
     <script src="~/Scripts/bootstrap-switch.js"></script>
+    <script src="~/Scripts/ngMask.min.js"></script>
 
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-animate.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-sanitize.js"></script>
@@ -34,140 +36,161 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
+
                 <div ng-controller="playerController" class="my-controller">
 
+                    <script type="text/ng-template" id="alert.html">
+                        <div ng-transclude></div>
+                    </script>
 
-                    <div class="form-horizontal">
-                        <div class="form-group">
-                            <label class="control-label col-sm-3"></label>
-                            <div class="col-sm-6">
-                                <input type="hidden" name="player.PlayerId" ng-model="player.PlayerId" value="{{player.PlayerId}}" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Country</label>
-                            <div class="col-sm-6">
-                                <select ng-model="player.CountryId"
-                                        ng-options="country.CountryId as country.CountryName for country in countries"
-                                        ng-change="getProvinces(player.CountryId)"
-                                        class="form-control"
-                                        ng-required="true"
-                                        id="country">
-                                    <option value="">-- Choose Country --</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Province</label>
-                            <div class="col-sm-6">
-                                <select ng-model="player.ProvinceId"
-                                        ng-options="province.ProvinceId as province.ProvinceName for province in provinces"
-                                        class="form-control"
-                                        ng-required="true"
-                                        id="province">
-                                    <option value="">-- Choose Province --</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Player Name :</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" name="player.Name" ng-model="player.Name" value="{{player.Name}}" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Player Point:</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" name="player.Point" ng-model="player.Point" value="{{player.Point}}" />
-                            </div>
-                        </div>                        
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Player Activated</label>
-                            <div class="col-sm-6">
-                                <div class="input-group date" data-provide="datepicker">
-                                    <input type="text"
-                                            class="form-control" 
-                                            uib-datepicker-popup="dd/MM/yyyy"
-                                            ng-model="player.RegisterationDate" 
-                                            is-open="schedulePopup.opened"
-                                            datepicker-options="dateOptions"
-                                            ng-required="true"
-                                            current-text="Bugün"
-                                            clear-text="Temizle"
-                                            close-text="Kapat"/>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default" ng-click="openSchedule()"><i class="glyphicon glyphicon-calendar"></i></button>
-                                    </span>
+                    <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + (alert.type)" close="closeAlert($index)">{{alert.msg}}</div>
+                    <form name="playerForm" ng-submit="submitForm(playerForm.$valid)" novalidate>
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="control-label col-sm-3"></label>
+                                <div class="col-sm-6">
+                                    <input type="hidden" name="player.PlayerId" ng-model="player.PlayerId" value="{{player.PlayerId}}" />
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Player Activated</label>
-                            <div class="col-sm-6">
-                                <input type="checkbox" ng-model="player.IsActive" bootstrap-switch />
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Country</label>
+                                <div class="col-sm-6">
+                                    <select ng-model="player.CountryId"
+                                            ng-options="country.CountryId as country.CountryName for country in countries"
+                                            ng-change="getProvinces(player.CountryId)"
+                                            class="form-control"
+                                            ng-required="true"
+                                            id="country">
+                                        <option value="">-- Choose Country --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Province</label>
+                                <div class="col-sm-6">
+                                    <select ng-model="player.ProvinceId"
+                                            ng-options="province.ProvinceId as province.ProvinceName for province in provinces"
+                                            class="form-control"
+                                            ng-required="true"
+                                            id="province">
+                                        <option value="">-- Choose Province --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Player Name :</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="Name" ng-model="player.Name" value="{{player.Name}}" required />                               
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Player Phone:</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="Phone" ng-model="player.Phone" value="{{player.Phone}}" required mask="(999) 999-9999" clean="true">
+                             
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Player Mail:</label>
+                                <div class="col-sm-6">
+                                    <input type="email" class="form-control" name="MailAddress" ng-model="player.MailAddress" value="{{player.MailAddress}}" required  />   
+                                    <div ng-messages="playerForm.email.$error">
+                                        <div ng-message="pattern">Please enter a valid email address!</div>
+                                    </div>                                
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Player Point:</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" name="Point" ng-model="player.Point" value="{{player.Point}}" required mask="9" repeat="3" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Date of Birth</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group date" data-provide="datepicker">
+                                        <input type="text"
+                                               class="form-control"
+                                               uib-datepicker-popup="dd/MM/yyyy"
+                                               ng-model="player.RegisterationDate"
+                                               is-open="schedulePopup.opened"
+                                               datepicker-options="dateOptions"
+                                               ng-required="true"
+                                               current-text="Bugün"
+                                               clear-text="Temizle"
+                                               close-text="Kapat" />
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" ng-click="openSchedule()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Player Activated</label>
+                                <div class="col-sm-6">
+                                    <input type="checkbox" ng-model="player.IsActive" bootstrap-switch />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3"></label>
+                                <div class="col-sm-3">
+                                    <input type="button" class="btn btn-success" value="Add Player" name="btnSave" ng-click="(addPlayer(player))" />
+                                </div>
+                                <div class="col-sm-3">
+                                    <input type="button" class="btn btn-primary" value="Update Player" name="btnUpdate" ng-click="(updatePlayer(player))" />
+                                </div>
+                                <div class="col-sm-3">
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </div>                              
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-3"></label>
-                            <div class="col-sm-3">
-                                <input type="button" class="btn btn-success" value="Add Player" name="btnSave" ng-click="(addPlayer(player))" />
+                    </form>
+                        <h1>Player List</h1>
+
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <h3>Current Page: {{ currentPage }}</h3>
                             </div>
-                            <div class="col-sm-3">
-                                <input type="button" class="btn btn-primary" value="Update Player" name="btnUpdate" ng-click="(updatePlayer(player))" />
+                            <div class="col-xs-4">
+                                <label for="search">Search:</label>
+                                <input ng-model="q.Name" id="search" class="form-control" placeholder="Filter Name">
+                            </div>
+                            <div class="col-xs-4">
+                                <label for="search">items per page:</label>
+                                <input type="number" min="1" max="100" class="form-control" ng-model="pageSize">
                             </div>
                         </div>
-                    </div>
+                        <br>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <table class="table table-hover">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Registeration Date</th>
+                                        <th>Point</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    <tr dir-paginate="player in players | filter:q | itemsPerPage: pageSize" current-page="currentPage">
+                                        <td>{{player.PlayerId}}</td>
+                                        <td>{{player.Name}}</td>
+                                        <td>{{player.RegisterationDate.slice(6, -2)  |date:'dd/MM/yyyy' }}</td>
+                                        <td>{{player.Point}}</td>
+                                        <td><input type="button" class="btn btn-primary" value="Select" name="btnSelect" ng-click="(getPlayer(player.PlayerId))" /></td>
+                                        <td><input type="button" class="btn btn-danger" value="Delete" name="btnDelete" ng-click="(deletePlayer(player.PlayerId))" /></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+</div>
 
-
-                    <h1>Player List</h1>
-
-                    <div class="row">
-                        <div class="col-xs-4">
-                            <h3>Current Page: {{ currentPage }}</h3>
-                        </div>
-                        <div class="col-xs-4">
-                            <label for="search">Search:</label>
-                            <input ng-model="q.Name" id="search" class="form-control" placeholder="Filter Name">
-                        </div>
-                        <div class="col-xs-4">
-                            <label for="search">items per page:</label>
-                            <input type="number" min="1" max="100" class="form-control" ng-model="pageSize">
-                        </div>
-                    </div>
-                    <br>
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <table class="table table-hover">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Registeration Date</th>
-                                    <th>Point</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                <tr dir-paginate="player in players | filter:q | itemsPerPage: pageSize" current-page="currentPage">
-                                    <td>{{player.PlayerId}}</td>
-                                    <td>{{player.Name}}</td>
-                                    <td>{{player.RegisterationDate.slice(6, -2)  |date:'dd/MM/yyyy' }}</td>
-                                    <td>{{player.Point}}</td>
-                                    <td><input type="button" class="btn btn-primary" value="Select" name="btnSelect" ng-click="(getPlayer(player.PlayerId))" /></td>
-                                    <td><input type="button" class="btn btn-danger" value="Delete" name="btnDelete" ng-click="(deletePlayer(player.PlayerId))" /></td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
+                <div class="text-center">
+                    <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url='@Url.Content("~/Scripts/pagination/dirPagination.tpl.html")'></dir-pagination-controls>
                 </div>
-                <div ng-controller="PagerController" class="other-controller">
-                    <small>Pagination</small>
-                    <div class="text-center">
-                        <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url='@Url.Content("~/Scripts/pagination/dirPagination.tpl.html")'></dir-pagination-controls>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
-
-
 </body>
 </html>

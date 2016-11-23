@@ -14,6 +14,10 @@ namespace MVCAngularDemo.Models
         [MaxLength(75)]
         public string Name { get; set; }
         public DateTime RegisterationDate { get; set; }
+        [MaxLength(75)]
+        public string MailAddress { get; set; }
+        [MaxLength(15)]
+        public string Phone { get; set; }
         public decimal Point { get; set; }
         public int? CountryId { get; set; }
         public int? ProvinceId { get; set; }

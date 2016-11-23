@@ -1,4 +1,4 @@
-﻿var App = angular.module("AngularApp", ['ngAnimate', 'ngSanitize', 'ui.bootstrap', 'angularUtils.directives.dirPagination']);
+﻿var App = angular.module("AngularApp", ['ngAnimate', 'ngSanitize', 'ui.bootstrap', 'angularUtils.directives.dirPagination', 'ngMask']);
 
 App.controller("playerController", function ($scope, $http) {
 
@@ -45,13 +45,18 @@ App.controller("playerController", function ($scope, $http) {
 
     $scope.updatePlayer = function (player) {
 
-        $http.post("/Player/UpdatePlayer", { player: player }).success(function (result) {
+        if (player !== "") {
+            $http.post("/Player/UpdatePlayer", { player: player }).success(function (result) {
 
-
-            $scope.players = result;
-        }).error(function (result) {
-            alert(JSON.stringify(result));
-        });
+                $scope.players = result;
+                $scope.showAlert("success", "Player updated");
+            }).error(function (result) {
+                alert(JSON.stringify(result));
+            });
+        }
+        else {
+            $scope.showAlert("warning","Choose a player");
+        }
     }
 
     $scope.deletePlayer = function (playerId) {
@@ -83,7 +88,7 @@ App.controller("playerController", function ($scope, $http) {
     $scope.openSchedule = function () {
         $scope.schedulePopup.opened = true;
     };
-    
+
     $scope.schedulePopup = {
         opened: false
     };
@@ -93,35 +98,46 @@ App.controller("playerController", function ($scope, $http) {
         'starting-day': 1
     };
 
-    $scope.pageChangeHandler = function (num) {
-        console.log('meals page changed to ' + num);
-    };
-});
+    // function to submit the form after all validation has occurred			
+    $scope.submitForm = function (isValid) {
 
-App.controller('PagerController', function ($scope, $http) {
-    $scope.pageChangeHandler = function (num) {
-        console.log('going to page ' + num);
+        // check to make sure the form is completely valid
+        if (isValid) {
+            alert('our form is amazing');
+        }
+
+    };
+
+    $scope.alerts = [];
+
+    $scope.showAlert = function (alertType, message) {
+        $scope.alerts = [];
+        $scope.alerts.push({ type: alertType, msg: message });
+    }
+
+    $scope.closeAlert = function (index) {
+        $scope.alerts.splice(index, 1);
     };
 });
 
 
 App.directive('bootstrapSwitch', [
-        function() {
+        function () {
             return {
                 restrict: 'A',
                 require: '?ngModel',
-                link: function(scope, element, attrs, ngModel) {
+                link: function (scope, element, attrs, ngModel) {
                     element.bootstrapSwitch();
 
-                    element.on('switchChange.bootstrapSwitch', function(event, state) {
+                    element.on('switchChange.bootstrapSwitch', function (event, state) {
                         if (ngModel) {
-                            scope.$apply(function() {
+                            scope.$apply(function () {
                                 ngModel.$setViewValue(state);
                             });
                         }
                     });
 
-                    scope.$watch(attrs.ngModel, function(newValue, oldValue) {
+                    scope.$watch(attrs.ngModel, function (newValue, oldValue) {
                         if (newValue) {
                             element.bootstrapSwitch('state', true, true);
                         } else {
